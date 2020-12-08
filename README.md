@@ -1,4 +1,4 @@
-# Hello，大家好，我是草梅友仁，一个主攻ts/js/vue前端工程师，平时喜欢刷B站，偶尔会做些视频
+# Hello，大家好，我是草梅友仁，一个主攻ts/js/vue的前端工程师，平时喜欢刷B站，偶尔会做些视频
 
 -   **博客**：[https://blog.cmyr.ltd/](https://blog.cmyr.ltd/)
 
@@ -8,3 +8,5 @@
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=CaoMeiYouRen)](https://github.com/anuraghazra/github-readme-stats)
 
 [![CaoMeiYouRen's github stats](https://github-readme-stats.vercel.app/api?username=CaoMeiYouRen)](https://github.com/anuraghazra/github-readme-stats)
+
+[![CaoMeiYouRen's wakatime stats](https://github-readme-stats.vercel.app/api/wakatime?username=CaoMeiYouRen)](https://github.com/anuraghazra/github-readme-stats)
