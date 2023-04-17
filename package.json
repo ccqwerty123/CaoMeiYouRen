@@ -1,0 +1,24 @@
+{
+  "name": "caomeiyouren",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CaoMeiYouRen/CaoMeiYouRen.git"
+  },
+  "keywords": [],
+  "author": "CaoMeiYouRen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CaoMeiYouRen/CaoMeiYouRen/issues"
+  },
+  "homepage": "https://github.com/CaoMeiYouRen/CaoMeiYouRen#readme",
+  "dependencies": {
+    "fs-extra": "^11.1.1",
+    "rss-parser": "^3.13.0"
+  }
+}
