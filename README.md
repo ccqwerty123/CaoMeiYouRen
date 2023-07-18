@@ -1,6 +1,6 @@
 # Hello，大家好，我是草梅友仁，一个主攻 ts/js/vue 的前端工程师
 
--   **博客**：[https://blog.cmyr.ltd/](https://blog.cmyr.ltd/)
+-   **博客**：[草梅友仁的博客](https://blog.cmyr.ltd/)
 -   **B站**：[草梅友仁](https://space.bilibili.com/10822025)
 -   **GitHub**：[CaoMeiYouRen](https://github.com/CaoMeiYouRen)
 -   **码云**：[草梅友仁](https://gitee.com/caomeiyouren)
@@ -8,6 +8,7 @@
 -   **知乎**：[草梅友仁](https://www.zhihu.com/people/cao-mei-you-ren)
 -   **简书**：[草梅友仁](https://www.jianshu.com/u/c111d2a51026)
 -   **爱发电**：[草梅友仁](https://afdian.net/a/CaoMeiYouRen)
+-   **Patreon**：[CaoMeiYouRen](https://www.patreon.com/CaoMeiYouRen)
 -   **公众号**：草梅友仁的后花园
 
 ## 最新博客
