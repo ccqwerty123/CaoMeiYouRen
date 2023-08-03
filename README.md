@@ -14,11 +14,11 @@
 ## 最新博客
 
 <!-- BLOG_START -->
+- [2023-07-23 2023BW 的吐槽和感想](https://blog.cmyr.ltd/archives/f2c308dd.html)
 - [2023-05-29 如何使用 hashcat 破解 RAR、ZIP 压缩包密码](https://blog.cmyr.ltd/archives/5865a866.html)
 - [2023-05-27 《刀剑神域进击篇：无星之夜》和《刀剑神域进击篇：暮色黄昏》观后感](https://blog.cmyr.ltd/archives/652a5a31.html)
 - [2023-05-24 如何为博客接入百度广告联盟](https://blog.cmyr.ltd/archives/e941bc42.html)
 - [2023-04-24 如何使用 GitHub Action 自动更新 README 文件](https://blog.cmyr.ltd/archives/bdbd3313.html)
-- [2023-04-08 来研究下日志对 Nest.js 性能的影响](https://blog.cmyr.ltd/archives/2b5bf0d8.html)
 <!-- BLOG_END -->
 
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=CaoMeiYouRen)](https://github.com/anuraghazra/github-readme-stats)
