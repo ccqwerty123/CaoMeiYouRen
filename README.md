@@ -16,11 +16,11 @@
 ## 最新博客
 
 <!-- BLOG_START -->
+- [2023-10-23 如何解决 Windows Server 2019 ping 不通问题](https://blog.cmyr.ltd/archives/cb933e30.html)
 - [2023-10-15 如何在 Spring Boot 2.7 和 3.0 中使用 Swagger](https://blog.cmyr.ltd/archives/5c0eb01b.html)
 - [2023-09-30 2023 原神音乐会观后感](https://blog.cmyr.ltd/archives/e09e35b2.html)
 - [2023-09-24 如何通过 Tinyletter 订阅 RSS](https://blog.cmyr.ltd/archives/971f76c0.html)
 - [2023-09-04 如何接入谷歌广告联盟](https://blog.cmyr.ltd/archives/38c2d695.html)
-- [2023-08-15 如何在 uni-app 中检测 APP 端是否有通知权限](https://blog.cmyr.ltd/archives/545e0e03.html)
 <!-- BLOG_END -->
 
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=CaoMeiYouRen)](https://github.com/anuraghazra/github-readme-stats)
