@@ -12,7 +12,6 @@
 -   **知乎**：[草梅友仁](https://www.zhihu.com/people/CaoMeiYouRen) 在知乎上，你可以了解我的观点和回答。
 -   **简书**：[草梅友仁](https://www.jianshu.com/u/c111d2a51026) 在简书上，你可以阅读我的随笔和心得体会。
 -   **爱发电**：[草梅友仁](https://afdian.net/a/CaoMeiYouRen) 可以通过爱发电平台支持我的创作。
-    
 -   **公众号**：[草梅友仁的后花园](https://cdn.jsdelivr.net/gh/CaoMeiYouRen/image-hosting-01@master/images/202310242101484.png) 关注我的公众号「草梅友仁的后花园」，获取最新技术资讯和文章。
 
 ## 最新博客
