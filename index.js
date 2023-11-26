@@ -5,7 +5,7 @@ var Parser = require('rss-parser');
 
 const rssParser = new Parser();
 async function start() {
-    const blogResp = await rssParser.parseURL('https://blog.cmyr.ltd/atom.xml');
+    const blogResp = await rssParser.parseURL('https://rsshub.app/telegram/channel/faketoulu');
     if (Date.now() - new Date(blogResp.lastBuildDate).getTime() > 48 * 60 * 60 * 1000) {
         console.log('最近48小时内没有博客更新，跳过本次更新');
         return;
