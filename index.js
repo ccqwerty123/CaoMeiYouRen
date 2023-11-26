@@ -12,7 +12,7 @@ async function start() {
     }
     const items = [...blogResp.items.slice(0, 5)];
     //const text = items.map((e) => `- [${e.title}](${e.link})`).join('\n');
-    const text = items.map((e) => `${e.description}`).join('\n');
+    const text = items.map((e) => `${e.link}`).join('\n');
     const readme = await fs.readFile('README.md', 'utf-8');
     const newReadme = readme.replace(/<!-- BLOG_START -->([\s\S]*?)<!-- BLOG_END -->/, `<!-- BLOG_START -->\n${text}\n<!-- BLOG_END -->`);
     await fs.writeFile('README.md', newReadme);
