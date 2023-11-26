@@ -17,11 +17,11 @@
 ## 最新博客
 
 <!-- BLOG_START -->
-- [2023-11-26 如何使用 wechaty 创建属于自己的微信机器人](https://blog.cmyr.ltd/archives/eb20e5d9.html)
-- [2023-10-23 如何解决 Windows Server 2019 ping 不通问题](https://blog.cmyr.ltd/archives/cb933e30.html)
-- [2023-10-15 如何在 Spring Boot 2.7 和 3.0 中使用 Swagger](https://blog.cmyr.ltd/archives/5c0eb01b.html)
-- [2023-09-30 2023 原神音乐会观后感](https://blog.cmyr.ltd/archives/e09e35b2.html)
-- [2023-09-24 如何通过 Tinyletter 订阅 RSS](https://blog.cmyr.ltd/archives/971f76c0.html)
+- [🎯 店铺抽奖 · 超级无线 export LUCK_DRAW_URL="https://lzkj-isv.isvjd.com/wxDrawActivity/activity/activity?activityId=864433cab1634dc4a9fa0562275a685...](https://t.me/faketoulu/39796)
+- [🎯 店铺抽奖 · 超级无线（新） export jd_lzkj_loreal_draw_url="https://lzkj-isv.isvjcloud.com/prod/cc/interactsaas/index?activityType=10021&templateI...](https://t.me/faketoulu/39795)
+- [🎯 大转盘抽奖 · 京耕 export jd_jinggeng_showDrawOne_activityUrl="https://jinggeng-isv.isvjcloud.com/ql/front/showDrawOne?id=9e80806b8bf5bd64018bffe...](https://t.me/faketoulu/39794)
+- [🎯 店铺抽奖 · 超级会员 export LUCK_DRAW_URL="https://cjhy-isv.isvjcloud.com/wxDrawActivity/activity/8605799?activityId=d4a8e09fb90a4e8d91340afa7315...](https://t.me/faketoulu/39793)
+- [🎯 店铺抽奖 · 超级无线（新） export jd_lzkj_loreal_draw_url="https://lzkj-isv.isvjcloud.com/prod/cc/interactsaas/index?activityType=10021&templateI...](https://t.me/faketoulu/39792)
 <!-- BLOG_END -->
 
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=CaoMeiYouRen)](https://github.com/anuraghazra/github-readme-stats)
