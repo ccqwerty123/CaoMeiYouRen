@@ -17,15 +17,7 @@
 ## 最新博客
 
 <!-- BLOG_START -->
-https://t.me/faketoulu/39796
 
-https://t.me/faketoulu/39795
-
-https://t.me/faketoulu/39794
-
-https://t.me/faketoulu/39793
-
-https://t.me/faketoulu/39792
 
 <!-- BLOG_END -->
 
