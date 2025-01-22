@@ -46,7 +46,6 @@ def get_xray_speed_and_verify():
     xray_config_file = found_files[0] # 更新路径为找到的路径
     print(f"Found '{xray_config_file}'.")
 
-
     try:
          # 加载 Xray 配置文件
         print(f"Loading Xray config from: {xray_config_file}...")
@@ -97,6 +96,7 @@ def get_xray_speed_and_verify():
         with open(xray_config_file, "w") as f:
             json.dump(config, f,indent=4)
         print(f"Xray config has been modified at : {xray_config_file}")
+       
         # 获取本机 IP
         print("Getting direct IP...")
         try:
@@ -124,6 +124,7 @@ def get_xray_speed_and_verify():
 
         # 2. 进行速度测试
         print("Starting speed test...")
+        xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
         xctl_path = os.path.join(os.getcwd(), "xctl")  # 获取 xctl 的绝对路径
         result = subprocess.run(
             [xctl_path, "api", "stats.query", "--server=127.0.0.1:10085","outbound.proxy.user.traffic","outbound.direct.user.traffic"],
