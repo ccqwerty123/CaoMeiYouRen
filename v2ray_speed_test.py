@@ -6,6 +6,7 @@ import requests
 import time
 import base64
 import signal
+import urllib.parse
 
 def get_xray_speed_and_verify():
     vmess_configs = [
@@ -13,10 +14,9 @@ def get_xray_speed_and_verify():
         "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTcxRlx1ODAzM1x1NTE3NjEiLA0KICAiYWRkIjogImNkbjEuYnBjZG4uY2MiLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICI2ZjQyY2ZlNS02NGYxLTQ2NmQtODg2MC04NTlkOGUwZjBhOTgiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInRrMS5iazVqaDR0Nncuamllc2s0cGRxY3FqbzE2ai54eXoiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9"
     ]
     results = []
-    xray_socks_port = 1080  # Hardcoded socks proxy port
+    xray_socks_port = 1081  # Hardcoded socks proxy port
     xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
-   
 
     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
@@ -40,7 +40,9 @@ def get_xray_speed_and_verify():
            missing_padding = len(vmess_b64) % 4
            if missing_padding:
                vmess_b64 += '='* (4 - missing_padding)
-           vmess_json_str = base64.b64decode(vmess_b64).decode("utf-8")
+           
+           # 使用urlsafe_b64decode
+           vmess_json_str = base64.urlsafe_b64decode(vmess_b64[8:]).decode("utf-8")
            vmess_config = json.loads(vmess_json_str)
         except Exception as e:
             print(f"Error: Failed to decode or parse Vmess config: {e}")
@@ -62,69 +64,133 @@ def get_xray_speed_and_verify():
         path = vmess_config["path"]
         tls = vmess_config["tls"]
        
-        config = {
-                "log": {
-                    "loglevel": "warning"
+        config =  {
+             "log": {
+                "access": "",
+                "error": "",
+                "loglevel": "warning"
+            },
+            "inbounds": [
+                {
+                "tag": "socks",
+                "port": xray_socks_port,
+                "listen": "0.0.0.0",
+                "protocol": "socks",
+                "sniffing": {
+                    "enabled": True,
+                    "destOverride": [
+                    "http",
+                    "tls"
+                    ],
+                    "routeOnly": False
                 },
-                "inbounds": [{
-                    "port": xray_socks_port,
-                    "protocol": "socks",
-                    "settings": {
-                        "auth": "noauth"
-                    }
-                }],
-                "outbounds": [
-                   {
-                        "protocol": "vmess",
-                        "settings": {
-                            "vnext": [
-                                {
-                                    "address": address,
-                                    "port": int(port),
-                                    "users": [
-                                        {
-                                            "id": id,
-                                            "alterId": int(alterId),
-                                            "security": security
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                      "streamSettings": {
-                           "network": net,
-                            "wsSettings": {
-                                "path": path,
-                                "headers": {
-                                    "Host": host
-                                   }
-                               }
-                          },
-                        "tag": "proxy"
-                    },
-                  {
-                      "protocol": "freedom",
-                      "settings": {},
-                      "tag": "direct"
-                   }
-                ],
-                 "routing": {
-                        "rules": [
-                            {
-                                "type": "field",
-                                "outboundTag": "proxy",
-                                "domain": [ "geosite:category-ads-all" ],
-                            },
-                             {
-                                "type": "field",
-                                "outboundTag": "direct",
-                                 "domain": [
-                                  "geosite:cn",
-                                 ],
-                            }
+                "settings": {
+                    "auth": "noauth",
+                    "udp": True,
+                    "allowTransparent": False
+                }
+                }
+            ],
+            "outbounds": [
+                {
+                "tag": "proxy",
+                "protocol": "vmess",
+                "settings": {
+                    "vnext": [
+                    {
+                        "address": address,
+                        "port": int(port),
+                        "users": [
+                        {
+                            "id": id,
+                            "alterId": int(alterId),
+                            "email": "t@t.tt",
+                            "security": security
+                        }
                         ]
-                 }
+                    }
+                    ]
+                },
+                "streamSettings": {
+                    "network": "ws",
+                    "wsSettings": {
+                    "path": path,
+                    "headers": {
+                        "Host": host
+                    }
+                    }
+                },
+                "mux": {
+                    "enabled": False,
+                    "concurrency": -1
+                }
+                },
+                {
+                "tag": "direct",
+                "protocol": "freedom",
+                "settings": {}
+                },
+                {
+                "tag": "block",
+                "protocol": "blackhole",
+                "settings": {
+                    "response": {
+                    "type": "http"
+                    }
+                }
+                }
+            ],
+            "dns": {
+                "hosts": {
+                "dns.google": "8.8.8.8",
+                "proxy.example.com": "127.0.0.1"
+                },
+                "servers": [
+                {
+                    "address": "180.76.76.76",
+                    "domains": [
+                    "geosite:cn",
+                    "geosite:geolocation-cn"
+                    ],
+                    "expectIPs": [
+                    "geoip:cn"
+                    ]
+                },
+                "1.1.1.1",
+                "8.8.8.8",
+                "https://dns.google/dns-query",
+                {
+                    "address": "223.5.5.5",
+                    "domains": [
+                    "cdn1.bpcdn.cc"
+                    ]
+                }
+                ]
+            },
+            "routing": {
+                "domainStrategy": "AsIs",
+                "rules": [
+                {
+                    "type": "field",
+                    "inboundTag": [
+                    "api"
+                    ],
+                    "outboundTag": "api"
+                },
+                {
+                    "type": "field",
+                    "port": "443",
+                    "network": "udp",
+                    "outboundTag": "block"
+                },
+                {
+                    "type": "field",
+                    "port": "0-65535",
+                    "outboundTag": "proxy"
+                }
+                ]
             }
+        }
        
         with open(xray_config_file, "w") as f:
             json.dump(config, f, indent=4)
