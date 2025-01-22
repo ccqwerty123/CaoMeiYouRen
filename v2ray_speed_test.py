@@ -64,6 +64,7 @@ def test_node(vmess_url):
     vmess_config = decode_vmess(vmess_url)
     create_config(vmess_config)
     
+    print(f"\n测试节点: {vmess_config['ps']}")
     print("获取原始 IP...")
     original_ip = get_ip()
     print(f"原始 IP: {original_ip}")
@@ -90,8 +91,14 @@ def test_node(vmess_url):
     xray_process.terminate()
     xray_process.wait()
 
-# 使用示例
-vmess_url = "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1ODFFQVx1OTAwOSBoYXgtY2xvbmUiLA0KICAiYWRkIjogImNmLjBzbS5jb20iLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICIzMzgwOWNkNC0zMDk1LTQ0N2QtZGI2Ny0wZTYwN2RkMjNkNWIiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInZwcy54aW5jZXMwMDEuZmlsZWdlYXItc2cubWUiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9"
+# 节点列表
+vmess_urls = [
+    "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1ODFFQVx1OTAwOSBoYXgtY2xvbmUiLA0KICAiYWRkIjogImNmLjBzbS5jb20iLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICIzMzgwOWNkNC0zMDk1LTQ0N2QtZGI2Ny0wZTYwN2RkMjNkNWIiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInZwcy54aW5jZXMwMDEuZmlsZWdlYXItc2cubWUiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9",
+    "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NEZDNFx1N0Y1N1x1NjVBRjItXHU0RTEzXHU3RUJGLVx1NTNCQlx1NUU3Rlx1NTQ0QSIsDQogICJhZGQiOiAiZWVkcDI1N2J1YnUyd2VmeTIubG92ZWJhaXBpYW8ubmV0IiwNCiAgInBvcnQiOiAiODAiLA0KICAiaWQiOiAiNmY0MmNmZTUtNjRmMS00NjZkLTg4NjAtODU5ZDhlMGYwYTk4IiwNCiAgImFpZCI6ICIwIiwNCiAgInNjeSI6ICJhdXRvIiwNCiAgIm5ldCI6ICJ3cyIsDQogICJ0eXBlIjogIm5vbmUiLA0KICAiaG9zdCI6ICJ3d3cuYXBwbGUuY29tIiwNCiAgInBhdGgiOiAiL2lwaG9uZSIsDQogICJ0bHMiOiAiIiwNCiAgInNuaSI6ICIiLA0KICAiYWxwbiI6ICIiLA0KICAiZnAiOiAiIg0KfQ=="
+]
 
 if __name__ == "__main__":
-    test_node(vmess_url)
+    print("开始测试节点...")
+    for vmess_url in vmess_urls:
+        test_node(vmess_url)
+    print("所有节点测试完成。")
