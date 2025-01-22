@@ -18,8 +18,7 @@ def get_xray_speed_and_verify():
     xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
     xray_dir = os.path.dirname(xray_path)  # 获取 xray 所在的目录
-
-    # 确保 xray 可执行文件存在
+     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
       print(f"Error: Could not find 'xray' executable at '{xray_path}'.")
       return None
@@ -53,13 +52,17 @@ def get_xray_speed_and_verify():
                 [xray_path, "-c", os.path.basename(xray_config_file)], # 使用相对于xray执行文件的路径
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                cwd=xray_dir,
+                 cwd=xray_dir,
                 )
     time.sleep(5)
 
+     # 捕获 Xray 的 stderr 输出
+    xray_stderr = xray_process.stderr.read().decode("utf-8")
+    if xray_stderr:
+         print(f"Xray stderr:\n{xray_stderr}")
 
     for vmess_b64 in vmess_configs:
-        try:
+         try:
            # 添加 padding
            missing_padding = len(vmess_b64) % 4
            if missing_padding:
@@ -68,153 +71,32 @@ def get_xray_speed_and_verify():
            # 使用urlsafe_b64decode
            vmess_json_str = base64.urlsafe_b64decode(vmess_b64[8:]).decode("utf-8")
            vmess_config = json.loads(vmess_json_str)
-        except Exception as e:
-            print(f"Error: Failed to decode or parse Vmess config: {e}")
-            continue # 如果解析失败，跳过这个节点
+         except Exception as e:
+             print(f"Error: Failed to decode or parse Vmess config: {e}")
+             continue # 如果解析失败，跳过这个节点
 
-        print(f"Testing Vmess config: {vmess_config.get('ps','')}")
-
-        # 创建 Xray config.json 文件
-        print(f"Creating Xray config file at: {xray_config_file}...")
-        
-        address = vmess_config["add"]
-        port = vmess_config["port"]
-        id = vmess_config["id"]
-        alterId = vmess_config["aid"]
-        security = vmess_config["scy"]
-        net = vmess_config["net"]
-        type = vmess_config["type"]
-        host = vmess_config["host"]
-        path = vmess_config["path"]
-        tls = vmess_config["tls"]
-       
-        config =  {
-             "log": {
-                "access": "",
-                "error": "",
-                "loglevel": "warning"
-            },
-            "inbounds": [
-                {
-                "tag": "socks",
-                "port": xray_socks_port,
-                "listen": "127.0.0.1",  # 修改这里，将 listen 改为 127.0.0.1
-                "protocol": "socks",
-                "sniffing": {
-                    "enabled": True,
-                    "destOverride": [
-                    "http",
-                    "tls"
-                    ],
-                    "routeOnly": False
-                },
-                "settings": {
-                    "auth": "noauth",
-                    "udp": True,
-                    "allowTransparent": False
-                }
-                }
-            ],
-            "outbounds": [
-                {
-                "tag": "proxy",
-                "protocol": "vmess",
-                "settings": {
-                    "vnext": [
-                    {
-                        "address": address,
-                        "port": int(port),
-                        "users": [
-                        {
-                            "id": id,
-                            "alterId": int(alterId),
-                            "email": "t@t.tt",
-                            "security": security
+         print(f"Testing Vmess config: {vmess_config.get('ps','')}")
+    
+        # 创建 Xray config.json 文件，使用默认 socks 配置
+         print(f"Creating Xray config file at: {xray_config_file}...")
+         config = {
+                "log": {
+                  "loglevel": "warning"
+                  },
+                   "inbounds": [{
+                        "port": xray_socks_port,
+                        "protocol": "socks",
+                        "settings": {
+                            "auth": "noauth"
                         }
-                        ]
-                    }
-                    ]
-                },
-                "streamSettings": {
-                    "network": "ws",
-                    "wsSettings": {
-                    "path": path,
-                    "headers": {
-                        "Host": host
-                    }
-                    }
-                },
-                "mux": {
-                    "enabled": False,
-                    "concurrency": -1
-                }
-                },
-                 {
-                    "tag": "all",
-                    "protocol": "freedom",
-                    "settings": {}
-                },
-                {
-                "tag": "block",
-                "protocol": "blackhole",
-                "settings": {
-                    "response": {
-                    "type": "http"
-                    }
-                }
-                }
-            ],
-            "dns": {
-                "hosts": {
-                "dns.google": "8.8.8.8",
-                "proxy.example.com": "127.0.0.1"
-                },
-                "servers": [
-                {
-                    "address": "180.76.76.76",
-                    "domains": [
-                    "geosite:cn",
-                    "geosite:geolocation-cn"
-                    ],
-                    "expectIPs": [
-                    "geoip:cn"
-                    ]
-                },
-                "1.1.1.1",
-                "8.8.8.8",
-                "https://dns.google/dns-query",
-                {
-                    "address": "223.5.5.5",
-                    "domains": [
-                    "cdn1.bpcdn.cc"
-                    ]
-                }
-                ]
-            },
-             "routing": {
-                "domainStrategy": "AsIs",
-                "rules": [
-                     {
-                       "type": "field",
-                        "outboundTag": "proxy",
-                        "domain": [ "geosite:category-ads-all" ],
-                     },
-                     {
-                       "type": "field",
-                       "outboundTag": "direct",
-                       "domain": [
-                         "geosite:cn",
-                       ],
-                    },
-                    {
-                        "type": "field",
-                        "outboundTag": "all",
-                        "port": "0-65535"
-                    }
-                 ]
-            }
-        }
-       
+                   }],
+                   "outbounds": [
+                        {
+                          "protocol": "freedom",
+                          "settings": {}
+                        }
+                     ]
+                   }
         with open(xray_config_file, "w") as f:
             json.dump(config, f, indent=4)
         print(f"Xray config file has been created at : {xray_config_file}")
@@ -223,26 +105,34 @@ def get_xray_speed_and_verify():
         with open(xray_config_file, "r") as f:
             config_content = f.read()
             print(f"Xray config file content: {config_content}")
-            
+
+         # 测试 Xray 进程是否存活
+        if xray_process.poll() is not None:
+            print("Error: Xray process exited unexpectedly.")
+            continue
+        else:
+           print("Xray process is running.")
+           
         # 使用 curl 测试 Xray 的 SOCKS 代理
-        print("Testing Xray SOCKS proxy with curl...")
+        print("Testing Xray SOCKS5 proxy with curl...")
         try:
             curl_output = subprocess.run(
                 ["curl", "-v", "https://api.ipify.org", "--proxy", f"socks5://127.0.0.1:{xray_socks_port}"],
                 capture_output=True,
                 text=True,
                 check=False,  # 不检查curl 的 return code
-                 cwd=xray_dir
+                cwd=xray_dir
             )
-            print(f"Curl output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
+            print(f"Curl SOCKS5 output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
             if curl_output.returncode != 0:
                 print(f"Error: curl test failed with code {curl_output.returncode}, output: {curl_output.stderr}")
-                continue
+                
             else:
                 if "Connection refused" in curl_output.stderr:
                     print(f"Error: curl connection refused, output: {curl_output.stderr}")
-                    continue
-                print("Curl test passed.")
+                else:
+                 print("Curl test passed.")
+
         except subprocess.CalledProcessError as e:
             print(f"Error: curl subprocess failed: {e}")
             continue
@@ -250,6 +140,29 @@ def get_xray_speed_and_verify():
           print(f"Error: Curl test failed: {e}")
           continue
 
+        print("Testing Xray SOCKS4 proxy with curl...")
+        try:
+            curl_output = subprocess.run(
+                ["curl", "-v", "https://api.ipify.org", "--proxy", f"socks4://127.0.0.1:{xray_socks_port}"],
+                capture_output=True,
+                text=True,
+                check=False,  # 不检查curl 的 return code
+                 cwd=xray_dir
+            )
+            print(f"Curl SOCKS4 output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
+            if curl_output.returncode != 0:
+                print(f"Error: curl test failed with code {curl_output.returncode}, output: {curl_output.stderr}")
+            else:
+                 if "Connection refused" in curl_output.stderr:
+                     print(f"Error: curl connection refused, output: {curl_output.stderr}")
+                 else:
+                     print("Curl test passed.")
+        except subprocess.CalledProcessError as e:
+            print(f"Error: curl subprocess failed: {e}")
+            continue
+        except Exception as e:
+            print(f"Error: Curl test failed: {e}")
+            continue
 
         try:
            # 获取本机 IP
@@ -286,6 +199,7 @@ def get_xray_speed_and_verify():
                 text=True,
                 check=True,
                 env=os.environ.copy(),
+                 cwd=xray_dir
             )
             if result.returncode != 0:
                 print(f"Error: xctl failed with code {result.returncode}, output: {result.stderr}")
@@ -302,7 +216,7 @@ def get_xray_speed_and_verify():
                 text=True,
                 check=False,
                 env=os.environ.copy(),
-                cwd=xray_dir
+                 cwd=xray_dir
             )
             if test_speed_result.returncode != 0:
                 print(f"Error: speed test failed with code {test_speed_result.returncode}, output: {test_speed_result.stderr}")
