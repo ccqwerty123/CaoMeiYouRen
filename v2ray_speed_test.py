@@ -98,7 +98,7 @@ def get_xray_speed_and_verify():
                 {
                 "tag": "socks",
                 "port": xray_socks_port,
-                "listen": "0.0.0.0",
+                "listen": "127.0.0.1",  # 修改这里，将 listen 改为 127.0.0.1
                 "protocol": "socks",
                 "sniffing": {
                     "enabled": True,
@@ -232,7 +232,7 @@ def get_xray_speed_and_verify():
                 capture_output=True,
                 text=True,
                 check=False,  # 不检查curl 的 return code
-                cwd=xray_dir
+                 cwd=xray_dir
             )
             print(f"Curl output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
             if curl_output.returncode != 0:
@@ -286,7 +286,6 @@ def get_xray_speed_and_verify():
                 text=True,
                 check=True,
                 env=os.environ.copy(),
-                cwd=xray_dir
             )
             if result.returncode != 0:
                 print(f"Error: xctl failed with code {result.returncode}, output: {result.stderr}")
