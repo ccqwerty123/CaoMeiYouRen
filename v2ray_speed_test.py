@@ -10,7 +10,7 @@ import urllib.parse
 
 def get_xray_speed_and_verify():
     vmess_configs = [
-        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1ODFFQVx1OTAwOSBoYXgtY2xvbmUiLA0KICAiYWRkIjogImNmLjBzbS5jb20iLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICIzMzgwOWNkNC0zMDk1LTQ0N2QtZGI2Ny0wZTYwN2RkMjNkNWIiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInZwcy54aW5jZXMwMDEuZmlsZWdlYXItc2cubWUiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9",
+        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTJBMFx1NjJGRlx1NTkyNzIiLA0KICAiYWRkIjogImNkbjIuYnBjZG4uY2MiLA0KICAicG9ydCI6ICIyMDg2IiwNCiAgImlkIjogIjZmNDJjZmU1LTY0ZjEtNDY2ZC04ODYwLTg1OWQ4ZTBmMGE5OCIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiY2FlM21nOXFzZzU1ZW81bGhxLmxvdmViYWlwaWFvLmNvbSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=",
         "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTcxRlx1ODAzM1x1NTE3NjEiLA0KICAiYWRkIjogImNkbjEuYnBjZG4uY2MiLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICI2ZjQyY2ZlNS02NGYxLTQ2NmQtODg2MC04NTlkOGUwZjBhOTgiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInRrMS5iazVqaDR0Nncuamllc2s0cGRxY3FqbzE2ai54eXoiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9"
     ]
     results = []
@@ -18,7 +18,6 @@ def get_xray_speed_and_verify():
     xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
     xray_dir = os.path.dirname(xray_path)  # 获取 xray 所在的目录
-   
 
     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
@@ -150,10 +149,10 @@ def get_xray_speed_and_verify():
                     "concurrency": -1
                 }
                 },
-                {
-                "tag": "direct",
-                "protocol": "freedom",
-                "settings": {}
+                 {
+                    "tag": "all",
+                    "protocol": "freedom",
+                    "settings": {}
                 },
                 {
                 "tag": "block",
@@ -192,28 +191,27 @@ def get_xray_speed_and_verify():
                 }
                 ]
             },
-            "routing": {
+             "routing": {
                 "domainStrategy": "AsIs",
                 "rules": [
-                {
-                    "type": "field",
-                    "inboundTag": [
-                    "api"
-                    ],
-                    "outboundTag": "api"
-                },
-                {
-                    "type": "field",
-                    "port": "443",
-                    "network": "udp",
-                    "outboundTag": "block"
-                },
-                {
-                    "type": "field",
-                    "port": "0-65535",
-                    "outboundTag": "proxy"
-                }
-                ]
+                     {
+                       "type": "field",
+                        "outboundTag": "proxy",
+                        "domain": [ "geosite:category-ads-all" ],
+                     },
+                     {
+                       "type": "field",
+                       "outboundTag": "direct",
+                       "domain": [
+                         "geosite:cn",
+                       ],
+                    },
+                    {
+                        "type": "field",
+                        "outboundTag": "all",
+                        "port": "0-65535"
+                    }
+                 ]
             }
         }
        
@@ -225,6 +223,33 @@ def get_xray_speed_and_verify():
         with open(xray_config_file, "r") as f:
             config_content = f.read()
             print(f"Xray config file content: {config_content}")
+            
+        # 使用 curl 测试 Xray 的 SOCKS 代理
+        print("Testing Xray SOCKS proxy with curl...")
+        try:
+            curl_output = subprocess.run(
+                ["curl", "-v", "https://api.ipify.org", "--proxy", f"socks5://127.0.0.1:{xray_socks_port}"],
+                capture_output=True,
+                text=True,
+                check=False,  # 不检查curl 的 return code
+                cwd=xray_dir
+            )
+            print(f"Curl output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
+            if curl_output.returncode != 0:
+                print(f"Error: curl test failed with code {curl_output.returncode}, output: {curl_output.stderr}")
+                continue
+            else:
+                if "Connection refused" in curl_output.stderr:
+                    print(f"Error: curl connection refused, output: {curl_output.stderr}")
+                    continue
+                print("Curl test passed.")
+        except subprocess.CalledProcessError as e:
+            print(f"Error: curl subprocess failed: {e}")
+            continue
+        except Exception as e:
+          print(f"Error: Curl test failed: {e}")
+          continue
+
 
         try:
            # 获取本机 IP
@@ -261,6 +286,7 @@ def get_xray_speed_and_verify():
                 text=True,
                 check=True,
                 env=os.environ.copy(),
+                cwd=xray_dir
             )
             if result.returncode != 0:
                 print(f"Error: xctl failed with code {result.returncode}, output: {result.stderr}")
@@ -277,6 +303,7 @@ def get_xray_speed_and_verify():
                 text=True,
                 check=False,
                 env=os.environ.copy(),
+                cwd=xray_dir
             )
             if test_speed_result.returncode != 0:
                 print(f"Error: speed test failed with code {test_speed_result.returncode}, output: {test_speed_result.stderr}")
@@ -289,6 +316,7 @@ def get_xray_speed_and_verify():
                 text=True,
                 check=True,
                 env=os.environ.copy(),
+                 cwd=xray_dir
             )
             if result_after.returncode != 0:
                 print(f"Error: xctl failed with code {result_after.returncode}, output: {result_after.stderr}")
