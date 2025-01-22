@@ -33,10 +33,9 @@ jobs:
         run: |
           unzip -o Xray-linux-64.zip
 
-      - name: Make xray and xctl executable
+      - name: Make xray executable
         run: |
            chmod +x xray
-           chmod +x ./xray
 
       - name: Add xray to PATH
         run: |
