@@ -24,6 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests[socks] # 修改这里，安装 SOCKS 支持
+
       - name: Download Xray-core
         run: |
           wget "https://github.com/XTLS/Xray-core/releases/download/${{ env.XRAY_VERSION }}/Xray-linux-64.zip"
@@ -41,6 +42,34 @@ jobs:
         run: |
           echo "$(pwd)/" >> $GITHUB_PATH
           ./xray -version # 检查是否正常运行
+
+      - name: Create Xray config file
+        run: |
+            echo '{
+                "log": {
+                    "loglevel": "warning"
+                },
+                "inbounds": [{
+                    "port": 1080,
+                    "protocol": "socks",
+                    "settings": {
+                        "auth": "noauth"
+                    }
+                }],
+                  "outbounds": [
+                   {
+                      "protocol": "freedom",
+                      "settings": {}
+                    }
+                  ]
+            }' > xray_config.json
+
+      - name: Start Xray
+        run: |
+          ./xray -config xray_config.json > /dev/null 2>&1 & # 在后台启动 xray
+
+      - name: Sleep 5 Seconds
+        run: sleep 5
 
       - name: Run speed test script
         run: python v2ray_speed_test.py
