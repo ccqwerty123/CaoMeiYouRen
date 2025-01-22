@@ -56,12 +56,24 @@ jobs:
                         "auth": "noauth"
                     }
                 }],
-                  "outbounds": [
-                   {
+                "outbounds": [
+                {
                       "protocol": "freedom",
-                      "settings": {}
-                    }
-                  ]
+                      "settings": {},
+                       "tag": "direct"
+                   }
+                ],
+                 "routing": {
+                        "rules": [
+                            {
+                                "type": "field",
+                                "outboundTag": "direct",
+                                 "domain": [
+                                  "geosite:cn",
+                                 ],
+                            }
+                        ]
+                 }
             }' > xray_config.json
 
       - name: Start Xray
