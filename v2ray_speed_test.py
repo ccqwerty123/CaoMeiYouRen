@@ -88,6 +88,15 @@ def get_xray_speed_and_verify():
         json.dump(config, f)
     
     try:
+        # 获取本机 IP
+        print("Getting direct IP...")
+        try:
+            direct_ip = requests.get("https://api.ipify.org", timeout=10).text.strip()
+            print(f"Direct IP: {direct_ip}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error getting direct IP: {e}")
+            return None
+
          # 1. 测试代理是否正常运行
         print("Testing Proxy...")
         try:
@@ -95,17 +104,20 @@ def get_xray_speed_and_verify():
                 "http": f"socks5://127.0.0.1:{xray_socks_port}",
                 "https": f"socks5://127.0.0.1:{xray_socks_port}"
             }
-            response = requests.get("https://api.ipify.org", proxies=proxies, timeout=10)
-            response.raise_for_status() # 如果响应不是 200，会抛出异常
-            print(f"Proxy test passed, IP: {response.text.strip()}")
+            proxy_ip = requests.get("https://api.ipify.org", proxies=proxies, timeout=10).text.strip()
+            print(f"Proxy test passed, IP: {proxy_ip}")
+            if direct_ip == proxy_ip:
+                print("Proxy test failed: direct IP and proxy IP are the same.")
+                return None
         except requests.exceptions.RequestException as e:
             print(f"Proxy test failed: {e}")
             return None
 
         # 2. 进行速度测试
         print("Starting speed test...")
+        xctl_path = os.path.join(os.getcwd(), "xctl")  # 获取 xctl 的绝对路径
         result = subprocess.run(
-            ["xctl", "api", "stats.query", "--server=127.0.0.1:10085","inbound.socks.user.traffic","outbound.proxy.user.traffic"],
+            [xctl_path, "api", "stats.query", "--server=127.0.0.1:10085","inbound.socks.user.traffic","outbound.proxy.user.traffic"],
             capture_output=True,
             text=True,
             check=True,
@@ -133,7 +145,7 @@ def get_xray_speed_and_verify():
         
         # 获取结束流量
         result_after = subprocess.run(
-            ["xctl", "api", "stats.query", "--server=127.0.0.1:10085","inbound.socks.user.traffic","outbound.proxy.user.traffic"],
+            [xctl_path, "api", "stats.query", "--server=127.0.0.1:10085","inbound.socks.user.traffic","outbound.proxy.user.traffic"],
             capture_output=True,
             text=True,
             check=True,
