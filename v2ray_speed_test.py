@@ -22,7 +22,24 @@ def get_xray_speed_and_verify():
     if not os.path.exists(xray_path):
       print(f"Error: Could not find 'xray' executable at '{xray_path}'.")
       return None
-   
+    
+    # 尝试运行 Xray 
+    print("Checking Xray executable...")
+    try:
+        xray_version_output = subprocess.run(
+            [xray_path, "-version"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        print(f"Xray version:\n{xray_version_output.stdout}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Xray executable check failed: {e}")
+        return None
+    except Exception as e:
+      print(f"Error: Xray executable check failed: {e}")
+      return None
+
     
     # 启动 Xray
     print("Starting Xray...")
@@ -30,7 +47,7 @@ def get_xray_speed_and_verify():
                 [xray_path, "-c", os.path.basename(xray_config_file)], # 使用相对于xray执行文件的路径
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                cwd=os.path.dirname(xray_path), # 指定工作目录
+                cwd=os.path.dirname(xray_path),
                 )
     time.sleep(5)
 
@@ -51,7 +68,7 @@ def get_xray_speed_and_verify():
 
         print(f"Testing Vmess config: {vmess_config.get('ps','')}")
 
-        # 创建 Xray config.json 文件
+         # 创建 Xray config.json 文件
         print(f"Creating Xray config file at: {xray_config_file}...")
         
         address = vmess_config["add"]
@@ -192,11 +209,11 @@ def get_xray_speed_and_verify():
                 ]
             }
         }
-       
+
         with open(xray_config_file, "w") as f:
             json.dump(config, f, indent=4)
         print(f"Xray config file has been created at : {xray_config_file}")
-       
+
         try:
            # 获取本机 IP
             print("Getting direct IP...")
