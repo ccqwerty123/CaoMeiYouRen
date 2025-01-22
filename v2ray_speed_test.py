@@ -9,20 +9,21 @@ import signal
 
 def get_xray_speed_and_verify():
     vmess_configs = [
-    "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTJBMFx1NjJGRlx1NTkyNzIiLA0KICAiYWRkIjogImNkbjIuYnBjZG4uY2MiLA0KICAicG9ydCI6ICIyMDg2IiwNCiAgImlkIjogIjZmNDJjZmU1LTY0ZjEtNDY2ZC04ODYwLTg1OWQ4ZTBmMGE5OCIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiY2FlM21nOXFzZzU1ZW81bGhxLmxvdmViYWlwaWFvLmNvbSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=",
-    "vmess://another_base64_encoded_vmess_config" # 你可以在这里添加更多的节点
+        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTJBMFx1NjJGRlx1NTkyNzIiLA0KICAiYWRkIjogImNkbjIuYnBjZG4uY2MiLA0KICAicG9ydCI6ICIyMDg2IiwNCiAgImlkIjogIjZmNDJjZmU1LTY0ZjEtNDY2ZC04ODYwLTg1OWQ4ZTBmMGE5OCIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiY2FlM21nOXFzZzU1ZW81bGhxLmxvdmViYWlwaWFvLmNvbSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=",
+        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTcxRlx1ODAzM1x1NTE3NjEiLA0KICAiYWRkIjogImNkbjEuYnBjZG4uY2MiLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICI2ZjQyY2ZlNS02NGYxLTQ2NmQtODg2MC04NTlkOGUwZjBhOTgiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInRrMS5iazVqaDR0Nncuamllc2s0cGRxY3FqbzE2ai54eXoiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9"
     ]
     results = []
     xray_socks_port = 1080  # Hardcoded socks proxy port
     xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
+   
 
     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
       print(f"Error: Could not find 'xray' executable at '{xray_path}'.")
       return None
-    
    
+    
     # 启动 Xray
     print("Starting Xray...")
     xray_process = subprocess.Popen(
@@ -35,6 +36,10 @@ def get_xray_speed_and_verify():
 
     for vmess_b64 in vmess_configs:
         try:
+           # 添加 padding
+           missing_padding = len(vmess_b64) % 4
+           if missing_padding:
+               vmess_b64 += '='* (4 - missing_padding)
            vmess_json_str = base64.b64decode(vmess_b64).decode("utf-8")
            vmess_config = json.loads(vmess_json_str)
         except Exception as e:
