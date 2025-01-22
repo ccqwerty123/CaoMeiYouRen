@@ -31,7 +31,7 @@ jobs:
 
       - name: Unzip Xray-core
         run: |
-          unzip Xray-linux-64.zip
+          unzip -o Xray-linux-64.zip # 修改这里，使用 -o 参数
 
       - name: Make xray executable
         run: |
