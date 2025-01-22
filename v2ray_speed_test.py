@@ -5,28 +5,24 @@ import datetime
 import requests
 import time
 import base64
+import signal
 
 def get_xray_speed_and_verify():
     vmess_configs = [
     "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTJBMFx1NjJGRlx1NTkyNzIiLA0KICAiYWRkIjogImNkbjIuYnBjZG4uY2MiLA0KICAicG9ydCI6ICIyMDg2IiwNCiAgImlkIjogIjZmNDJjZmU1LTY0ZjEtNDY2ZC04ODYwLTg1OWQ4ZTBmMGE5OCIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiY2FlM21nOXFzZzU1ZW81bGhxLmxvdmViYWlwaWFvLmNvbSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=",
-    "vmess://another_base64_encoded_vmess_config"  # 你可以在这里添加更多的节点
+    "vmess://another_base64_encoded_vmess_config" # 你可以在这里添加更多的节点
     ]
     results = []
     xray_socks_port = 1080  # Hardcoded socks proxy port
     xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
-    xctl_path = os.path.join(os.getcwd(), "xctl")  # 获取 xctl 的绝对路径
 
     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
       print(f"Error: Could not find 'xray' executable at '{xray_path}'.")
       return None
     
-    # 确保 xctl 可执行文件存在
-    if not os.path.exists(xctl_path):
-      print(f"Error: Could not find 'xctl' executable at '{xctl_path}'.")
-      return None
-    
+   
     # 启动 Xray
     print("Starting Xray...")
     xray_process = subprocess.Popen(
@@ -129,9 +125,8 @@ def get_xray_speed_and_verify():
             json.dump(config, f, indent=4)
         print(f"Xray config file has been created at : {xray_config_file}")
 
-
         try:
-             # 获取本机 IP
+           # 获取本机 IP
             print("Getting direct IP...")
             try:
                 direct_ip = requests.get("https://api.ipify.org", timeout=10).text.strip()
@@ -160,7 +155,7 @@ def get_xray_speed_and_verify():
            # 2. 进行速度测试
             print("Starting speed test...")
             result = subprocess.run(
-                [xctl_path, "api", "stats.query", "--server=127.0.0.1:10085","outbound.proxy.user.traffic","outbound.direct.user.traffic"],
+                [xray_path, "api", "stats.query", "--server=127.0.0.1:10085","outbound.proxy.user.traffic","outbound.direct.user.traffic"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -188,7 +183,7 @@ def get_xray_speed_and_verify():
 
            # 获取结束流量
             result_after = subprocess.run(
-               [xctl_path, "api", "stats.query", "--server=127.0.0.1:10085","outbound.proxy.user.traffic","outbound.direct.user.traffic"],
+               [xray_path, "api", "stats.query", "--server=127.0.0.1:10085","outbound.proxy.user.traffic","outbound.direct.user.traffic"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -214,20 +209,10 @@ def get_xray_speed_and_verify():
         except Exception as e:
            print(f"Error:  failed: {e}")
         finally:
-            # 使用API重载配置
+            # 使用信号量重载配置
             print("Reloading Xray config...")
-            try:
-               reload_result = subprocess.run(
-                [xctl_path, "api", "handler.reload", "--server=127.0.0.1:10085"],
-                capture_output=True,
-                text=True,
-                check=True,
-                env=os.environ.copy(),
-                )
-               if reload_result.returncode != 0:
-                   print(f"Error: Xray reload failed with code {reload_result.returncode}, output: {reload_result.stderr}")
-            except Exception as e:
-               print(f"Error: Reload config failed: {e}")
+            os.kill(xray_process.pid, signal.SIGHUP)
+            time.sleep(1) # 等待信号量处理完成
             if os.path.exists(xray_config_file):
                 os.remove(xray_config_file)
 
