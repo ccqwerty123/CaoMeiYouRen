@@ -57,11 +57,11 @@ jobs:
                     }
                 }],
                 "outbounds": [
-                {
-                      "protocol": "freedom",
-                      "settings": {},
+                   {
+                        "protocol": "freedom",
+                        "settings": {},
                        "tag": "direct"
-                   }
+                  }
                 ],
                  "routing": {
                         "rules": [
@@ -78,7 +78,7 @@ jobs:
 
       - name: Start Xray
         run: |
-          ./xray -config xray_config.json > /dev/null 2>&1 & # 在后台启动 xray
+           ./xray -c xray_config.json > /dev/null 2>&1 & # 使用 -c 参数
 
       - name: Sleep 5 Seconds
         run: sleep 5
