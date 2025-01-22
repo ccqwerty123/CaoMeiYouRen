@@ -43,46 +43,6 @@ jobs:
           echo "$(pwd)/" >> $GITHUB_PATH
           ./xray -version # 检查是否正常运行
 
-      - name: Create Xray config file
-        run: |
-            echo '{
-                "log": {
-                    "loglevel": "warning"
-                },
-                "inbounds": [{
-                    "port": 1080,
-                    "protocol": "socks",
-                    "settings": {
-                        "auth": "noauth"
-                    }
-                }],
-                "outbounds": [
-                   {
-                        "protocol": "freedom",
-                        "settings": {},
-                       "tag": "direct"
-                  }
-                ],
-                 "routing": {
-                        "rules": [
-                            {
-                                "type": "field",
-                                "outboundTag": "direct",
-                                 "domain": [
-                                  "geosite:cn",
-                                 ],
-                            }
-                        ]
-                 }
-            }' > xray_config.json
-
-      - name: Start Xray
-        run: |
-           ./xray -c xray_config.json > /dev/null 2>&1 & # 使用 -c 参数
-
-      - name: Sleep 5 Seconds
-        run: sleep 5
-
       - name: Run speed test script
         run: python v2ray_speed_test.py
 
