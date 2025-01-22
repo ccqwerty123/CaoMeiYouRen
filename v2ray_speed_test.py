@@ -15,9 +15,10 @@ def get_xray_speed_and_verify():
     ]
     results = []
     xray_socks_port = 1081  # Hardcoded socks proxy port
+    xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
     xray_dir = os.path.dirname(xray_path)  # 获取 xray 所在的目录
-    xray_config_file = os.path.join(xray_dir, "config.json")  # 设置文件名和路径, 和xray在同一目录
+   
 
     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
