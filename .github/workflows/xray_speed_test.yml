@@ -31,12 +31,12 @@ jobs:
 
       - name: Unzip Xray-core
         run: |
-          unzip -o Xray-linux-64.zip # 修改这里，使用 -o 参数
+          unzip -o Xray-linux-64.zip
 
-      - name: Make xray executable
+      - name: Make xray and xctl executable
         run: |
            chmod +x xray
-           chmod +x xctl
+           chmod +x ./xray # 正确的chmod方法
 
       - name: Add xray to PATH
         run: |
