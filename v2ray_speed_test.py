@@ -15,8 +15,8 @@ def get_xray_speed_and_verify():
     ]
     results = []
     xray_socks_port = 1081  # Hardcoded socks proxy port
-    xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
+    xray_config_file = os.path.join(os.path.dirname(xray_path), "config.json")  # 设置文件名和路径, 和xray在同一目录
 
     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
@@ -27,9 +27,10 @@ def get_xray_speed_and_verify():
     # 启动 Xray
     print("Starting Xray...")
     xray_process = subprocess.Popen(
-                [xray_path, "-c", xray_config_file],
+                [xray_path, "-c", os.path.basename(xray_config_file)], # 使用相对于xray执行文件的路径
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                cwd=os.path.dirname(xray_path), # 指定工作目录
                 )
     time.sleep(5)
 
@@ -195,7 +196,7 @@ def get_xray_speed_and_verify():
         with open(xray_config_file, "w") as f:
             json.dump(config, f, indent=4)
         print(f"Xray config file has been created at : {xray_config_file}")
-
+       
         try:
            # 获取本机 IP
             print("Getting direct IP...")
