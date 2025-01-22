@@ -1,310 +1,97 @@
-import subprocess
 import json
-import os
-import datetime
-import requests
-import time
 import base64
-import signal
-import urllib.parse
+import subprocess
+import time
+import requests
+import os
 
-def get_xray_speed_and_verify():
-    vmess_configs = [
-        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTJBMFx1NjJGRlx1NTkyNzIiLA0KICAiYWRkIjogImNkbjIuYnBjZG4uY2MiLA0KICAicG9ydCI6ICIyMDg2IiwNCiAgImlkIjogIjZmNDJjZmU1LTY0ZjEtNDY2ZC04ODYwLTg1OWQ4ZTBmMGE5OCIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiY2FlM21nOXFzZzU1ZW81bGhxLmxvdmViYWlwaWFvLmNvbSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=",
-        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTcxRlx1ODAzM1x1NTE3NjEiLA0KICAiYWRkIjogImNkbjEuYnBjZG4uY2MiLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICI2ZjQyY2ZlNS02NGYxLTQ2NmQtODg2MC04NTlkOGUwZjBhOTgiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInRrMS5iazVqaDR0Nncuamllc2s0cGRxY3FqbzE2ai54eXoiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9"
-    ]
-    results = []
-    xray_socks_port = 1080  # Hardcoded socks proxy port
-    xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
-    xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
-    xray_dir = os.path.dirname(xray_path)  # 获取 xray 所在的目录
+def decode_vmess(vmess_url):
+    encoded_config = vmess_url.split("://")[1]
+    config_json = base64.b64decode(encoded_config).decode('utf-8')
+    return json.loads(config_json)
 
-     # 确保 xray 可执行文件存在
-    if not os.path.exists(xray_path):
-      print(f"Error: Could not find 'xray' executable at '{xray_path}'.")
-      return None
-    
-     # 打印 xray 文件列表
-    print("Xray files:")
-    for item in os.listdir(xray_dir):
-        print(item)
-    
-    # 尝试运行 Xray 
-    print("Checking Xray executable...")
-    try:
-        xray_version_output = subprocess.run(
-            [xray_path, "-version"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        print(f"Xray version:\n{xray_version_output.stdout}")
-    except subprocess.CalledProcessError as e:
-        print(f"Error: Xray executable check failed: {e}")
-        return None
-    except Exception as e:
-      print(f"Error: Xray executable check failed: {e}")
-      return None
-
-    
-     # 启动 Xray
-    print("Starting Xray...")
-    xray_process = subprocess.Popen(
-        [xray_path, "-c", os.path.basename(xray_config_file)], # 使用相对于xray执行文件的路径
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        cwd=xray_dir
-    )
-    time.sleep(5)
-    
-     # 捕获 Xray 的 stderr 输出
-    xray_stderr = xray_process.stderr.read().decode("utf-8")
-    if xray_stderr:
-         print(f"Xray stderr:\n{xray_stderr}")
-   
-
-
-    for vmess_b64 in vmess_configs:
-        try:
-            # 添加 padding
-            missing_padding = len(vmess_b64) % 4
-            if missing_padding:
-                vmess_b64 += '='* (4 - missing_padding)
-            
-            # 使用urlsafe_b64decode
-            vmess_json_str = base64.urlsafe_b64decode(vmess_b64[8:]).decode("utf-8")
-            vmess_config = json.loads(vmess_json_str)
-        except Exception as e:
-            print(f"Error: Failed to decode or parse Vmess config: {e}")
-            continue  # 如果解析失败，跳过这个节点
-
-        print(f"Testing Vmess config: {vmess_config.get('ps','')}")
-    
-        # 创建 Xray config.json 文件，使用自定义的配置格式
-        print(f"Creating Xray config file at: {xray_config_file}...")
-        address = vmess_config["add"]
-        port = vmess_config["port"]
-        id = vmess_config["id"]
-
-        config = {
-            "inbounds": [
-                {
-                    "port": xray_socks_port,
-                    "listen": "127.0.0.1",
-                    "protocol": "socks",
-                    "settings": {
-                        "udp": True
-                    }
-                }
-            ],
-            "outbounds": [
-                {
-                    "protocol": "vmess",
-                    "settings": {
-                        "vnext": [
-                            {
-                                "address": address,
-                                "port": int(port),
-                                "users": [
-                                    {
-                                        "id": id
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "protocol": "freedom",
-                    "tag": "direct"
-                }
-            ],
-            "routing": {
-                "domainStrategy": "IPOnDemand",
-                "rules": [
-                    {
-                        "type": "field",
-                        "ip": ["geoip:private", "geoip:cn"],  # 绕过局域网和国内IP段
-                        "outboundTag": "direct"
-                    }
-                ]
+def create_config(vmess_config):
+    config = {
+        "inbounds": [{
+            "port": 1080,
+            "protocol": "socks",
+            "sniffing": {
+                "enabled": True,
+                "destOverride": ["http", "tls"]
+            },
+            "settings": {
+                "auth": "noauth"
             }
-        }
-
-        with open(xray_config_file, "w") as f:
-            json.dump(config, f, indent=4)
-        print(f"Xray config file has been created at : {xray_config_file}")
-         #打印 config.json的内容，确保配置正确
-        with open(xray_config_file, "r") as f:
-            config_content = f.read()
-            print(f"Xray config file content: {config_content}")
-
-        # 测试 Xray 进程是否存活
-        if xray_process.poll() is not None:
-            print("Error: Xray process exited unexpectedly.")
-            continue
-        else:
-           print("Xray process is running.")
-        
-        # 使用 curl 测试 Xray 的 SOCKS 代理
-        print("Testing Xray SOCKS5 proxy with curl...")
-        try:
-            curl_output = subprocess.run(
-                ["curl", "-v", "https://api.ipify.org", "--proxy", f"socks5://127.0.0.1:{xray_socks_port}"],
-                capture_output=True,
-                text=True,
-                check=False,  # 不检查curl 的 return code
-                 cwd=xray_dir
-            )
-            print(f"Curl SOCKS5 output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
-            if curl_output.returncode != 0:
-                print(f"Error: curl test failed with code {curl_output.returncode}, output: {curl_output.stderr}")
-                
-            else:
-                if "Connection refused" in curl_output.stderr:
-                     print(f"Error: curl connection refused, output: {curl_output.stderr}")
-                else:
-                   print("Curl test passed.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error: curl subprocess failed: {e}")
-            continue
-        except Exception as e:
-          print(f"Error: Curl test failed: {e}")
-          continue
-
-        print("Testing Xray SOCKS4 proxy with curl...")
-        try:
-            curl_output = subprocess.run(
-                ["curl", "-v", "https://api.ipify.org", "--proxy", f"socks4://127.0.0.1:{xray_socks_port}"],
-                capture_output=True,
-                text=True,
-                check=False,  # 不检查curl 的 return code
-                cwd=xray_dir
-            )
-            print(f"Curl SOCKS4 output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
-            if curl_output.returncode != 0:
-                print(f"Error: curl test failed with code {curl_output.returncode}, output: {curl_output.stderr}")
-            else:
-                if "Connection refused" in curl_output.stderr:
-                     print(f"Error: curl connection refused, output: {curl_output.stderr}")
-                else:
-                   print("Curl test passed.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error: curl subprocess failed: {e}")
-            continue
-        except Exception as e:
-            print(f"Error: Curl test failed: {e}")
-            continue
-
-
-        try:
-           # 获取本机 IP
-            print("Getting direct IP...")
-            try:
-                direct_ip = requests.get("https://api.ipify.org", timeout=10).text.strip()
-                print(f"Direct IP: {direct_ip}")
-            except requests.exceptions.RequestException as e:
-                print(f"Error getting direct IP: {e}")
-                continue
-
-
-            # 1. 测试代理是否正常运行
-            print("Testing Proxy...")
-            try:
-                proxies = {
-                    "http": f"socks5://127.0.0.1:{xray_socks_port}",
-                    "https": f"socks5://127.0.0.1:{xray_socks_port}"
+        }],
+        "outbounds": [{
+            "protocol": "vmess",
+            "settings": {
+                "vnext": [{
+                    "address": vmess_config["add"],
+                    "port": int(vmess_config["port"]),
+                    "users": [{
+                        "id": vmess_config["id"],
+                        "alterId": int(vmess_config["aid"])
+                    }]
+                }]
+            },
+            "streamSettings": {
+                "network": vmess_config["net"],
+                "wsSettings": {
+                    "path": vmess_config["path"],
+                    "headers": {
+                        "Host": vmess_config["host"]
+                    }
                 }
-                proxy_ip = requests.get("https://api.ipify.org", proxies=proxies, timeout=10).text.strip()
-                print(f"Proxy test passed, IP: {proxy_ip}")
-                if direct_ip == proxy_ip:
-                     print("Proxy test failed: direct IP and proxy IP are the same.")
-                     continue
-            except requests.exceptions.RequestException as e:
-               print(f"Proxy test failed: {e}")
-               continue
+            }
+        }]
+    }
+    
+    with open('config.json', 'w') as f:
+        json.dump(config, f)
 
-           # 2. 进行速度测试
-            print("Starting speed test...")
-            result = subprocess.run(
-                [xray_path, "api", "stats.query", "--server=127.0.0.1:10085","outbound.proxy.user.traffic","outbound.direct.user.traffic"],
-                capture_output=True,
-                text=True,
-                check=True,
-                env=os.environ.copy(),
-                 cwd=xray_dir
-            )
-            if result.returncode != 0:
-                print(f"Error: xctl failed with code {result.returncode}, output: {result.stderr}")
-                continue
+def get_ip(proxies=None):
+    try:
+        response = requests.get("http://ip-api.com/json/", proxies=proxies, timeout=10)
+        if response.status_code == 200:
+            return response.json()["query"]
+        else:
+            return None
+    except requests.exceptions.RequestException:
+        return None
 
-            initial_stats = json.loads(result.stdout.strip())
-            initial_outbound_proxy_traffic = initial_stats["stat"][0]["value"] if len(initial_stats["stat"]) > 0 else 0
-            initial_outbound_direct_traffic = initial_stats["stat"][1]["value"] if len(initial_stats["stat"]) > 1 else 0
-
-           # 发起一些流量
-            test_speed_result = subprocess.run(
-                ["curl","-v","https://www.google.com","--proxy",f"socks5://127.0.0.1:{xray_socks_port}"],
-                capture_output=True,
-                text=True,
-                check=False,
-                env=os.environ.copy(),
-                 cwd=xray_dir
-            )
-            if test_speed_result.returncode != 0:
-                print(f"Error: speed test failed with code {test_speed_result.returncode}, output: {test_speed_result.stderr}")
-                continue
-
-           # 获取结束流量
-            result_after = subprocess.run(
-               [xray_path, "api", "stats.query", "--server=127.0.0.1:10085","outbound.proxy.user.traffic","outbound.direct.user.traffic"],
-                capture_output=True,
-                text=True,
-                check=True,
-                env=os.environ.copy(),
-                 cwd=xray_dir
-            )
-            if result_after.returncode != 0:
-                print(f"Error: xctl failed with code {result_after.returncode}, output: {result_after.stderr}")
-                continue
-
-            after_stats = json.loads(result_after.stdout.strip())
-            after_outbound_proxy_traffic = after_stats["stat"][0]["value"] if len(after_stats["stat"]) > 0 else 0
-            after_outbound_direct_traffic = after_stats["stat"][1]["value"] if len(after_stats["stat"]) > 1 else 0
-
-            outbound_proxy_diff = after_outbound_proxy_traffic - initial_outbound_proxy_traffic
-            outbound_direct_diff = after_outbound_direct_traffic - initial_outbound_direct_traffic
-            results.append(
-                {
-                    "vmess_config": vmess_config.get('ps',''),
-                    "outbound_proxy_bytes": outbound_proxy_diff,
-                    "outbound_direct_bytes": outbound_direct_diff,
-                 }
-            )
-        except Exception as e:
-           print(f"Error:  failed: {e}")
-        finally:
-            # 使用信号量重载配置
-            print("Reloading Xray config...")
-            os.kill(xray_process.pid, signal.SIGHUP)
-            time.sleep(1) # 等待信号量处理完成
-            if os.path.exists(xray_config_file):
-                os.remove(xray_config_file)
-
-    # 停止 Xray
-    print("Stopping Xray...")
+def test_node(vmess_url):
+    vmess_config = decode_vmess(vmess_url)
+    create_config(vmess_config)
+    
+    print("获取原始 IP...")
+    original_ip = get_ip()
+    print(f"原始 IP: {original_ip}")
+    
+    print("启动 Xray...")
+    xray_path = os.path.join(os.getcwd(), 'xray')
+    xray_process = subprocess.Popen([xray_path, "run", "-c", "config.json"])
+    time.sleep(5)  # 给 Xray 一些启动时间
+    
+    proxies = {
+        "http": "socks5://127.0.0.1:1080",
+        "https": "socks5://127.0.0.1:1080"
+    }
+    
+    print("通过代理获取 IP...")
+    proxy_ip = get_ip(proxies)
+    print(f"代理 IP: {proxy_ip}")
+    
+    if proxy_ip and proxy_ip != original_ip:
+        print("节点可用: IP 地址已更改")
+    else:
+        print("节点不可用或出现错误")
+    
     xray_process.terminate()
     xray_process.wait()
-    return results
 
+# 使用示例
+vmess_url = "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1ODFFQVx1OTAwOSBoYXgtY2xvbmUiLA0KICAiYWRkIjogImNmLjBzbS5jb20iLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICIzMzgwOWNkNC0zMDk1LTQ0N2QtZGI2Ny0wZTYwN2RkMjNkNWIiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInZwcy54aW5jZXMwMDEuZmlsZWdlYXItc2cubWUiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9"
 
 if __name__ == "__main__":
-   
-    speed_data_list = get_xray_speed_and_verify()
-    if speed_data_list:
-             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-             print(f"Speed Test Result {current_time}:")
-             for data in speed_data_list:
-                print(f"  Node: {data['vmess_config']}")
-                print(f"  Outbound proxy traffic: {data['outbound_proxy_bytes']} bytes")
-                print(f"  Outbound direct traffic: {data['outbound_direct_bytes']} bytes")
+    test_node(vmess_url)
