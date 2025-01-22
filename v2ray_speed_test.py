@@ -10,7 +10,7 @@ import urllib.parse
 
 def get_xray_speed_and_verify():
     vmess_configs = [
-        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTJBMFx1NjJGRlx1NTkyNzIiLA0KICAiYWRkIjogImNkbjIuYnBjZG4uY2MiLA0KICAicG9ydCI6ICIyMDg2IiwNCiAgImlkIjogIjZmNDJjZmU1LTY0ZjEtNDY2ZC04ODYwLTg1OWQ4ZTBmMGE5OCIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiY2FlM21nOXFzZzU1ZW81bGhxLmxvdmViYWlwaWFvLmNvbSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=",
+        "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTJBMFx1NjJGRlx1NTkyNzIiLA0KICAiYWRkIjogImNkbjIuYnBjZG4uY2MiLA0KICAicG9ydCI6ICIyMDg2IiwNCiAgImlkIjogIjZmNDJjZmU1LTY0ZjEtNDY2ZC04ODYwLTg1OWQ4ZTBmMGE5OCIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOi Aid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiY2FlM21nOXFzZzU1ZW81bGhxLmxvdmViYWlwaWFvLmNvbSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=",
         "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1NTcxRlx1ODAzM1x1NTE3NjEiLA0KICAiYWRkIjogImNkbjEuYnBjZG4uY2MiLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICI2ZjQyY2ZlNS02NGYxLTQ2NmQtODg2MC04NTlkOGUwZjBhOTgiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogInRrMS5iazVqaDR0Nncuamllc2s0cGRxY3FqbzE2ai54eXoiLA0KICAicGF0aCI6ICIvIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9"
     ]
     results = []
@@ -18,8 +18,9 @@ def get_xray_speed_and_verify():
     xray_config_file = os.path.join(os.getcwd(), "config.json")  # 设置文件名和路径
     xray_path = os.path.join(os.getcwd(), "xray")  # 获取 xray 的绝对路径
     xray_dir = os.path.dirname(xray_path)  # 获取 xray 所在的目录
+   
 
-    # 确保 xray 可执行文件存在
+     # 确保 xray 可执行文件存在
     if not os.path.exists(xray_path):
       print(f"Error: Could not find 'xray' executable at '{xray_path}'.")
       return None
@@ -47,20 +48,20 @@ def get_xray_speed_and_verify():
       return None
 
     
-    # 启动 Xray
+     # 启动 Xray
     print("Starting Xray...")
     xray_process = subprocess.Popen(
-                [xray_path, "-c", os.path.basename(xray_config_file)], # 使用相对于xray执行文件的路径
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                cwd=xray_dir,
-                )
+        [xray_path, "-c", os.path.basename(xray_config_file)],  # 使用相对于Xray执行文件的路径
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=xray_dir,
+    )
     time.sleep(5)
-    
-    # 捕获 Xray 的 stderr 输出
+     # 捕获 Xray 的 stderr 输出
     xray_stderr = xray_process.stderr.read().decode("utf-8")
     if xray_stderr:
          print(f"Xray stderr:\n{xray_stderr}")
+
 
     for vmess_b64 in vmess_configs:
         try:
@@ -77,14 +78,14 @@ def get_xray_speed_and_verify():
             continue # 如果解析失败，跳过这个节点
 
         print(f"Testing Vmess config: {vmess_config.get('ps','')}")
-
+    
         # 创建 Xray config.json 文件，使用默认 socks 配置
         print(f"Creating Xray config file at: {xray_config_file}...")
         config = {
-              "log": {
-                 "loglevel": "warning"
+                "log": {
+                    "loglevel": "warning"
                 },
-                   "inbounds": [{
+                  "inbounds": [{
                         "port": xray_socks_port,
                         "protocol": "socks",
                         "settings": {
@@ -97,9 +98,9 @@ def get_xray_speed_and_verify():
                           "settings": {}
                         }
                      ]
-                   }
+                 }
         with open(xray_config_file, "w") as f:
-            json.dump(config, f, indent=4)
+             json.dump(config, f, indent=4)
         print(f"Xray config file has been created at : {xray_config_file}")
         
         #打印 config.json的内容，确保配置正确
@@ -148,7 +149,7 @@ def get_xray_speed_and_verify():
                 capture_output=True,
                 text=True,
                 check=False,  # 不检查curl 的 return code
-                 cwd=xray_dir
+                cwd=xray_dir
             )
             print(f"Curl SOCKS4 output:\n{curl_output.stderr}")  # 打印 curl 的详细输出
             if curl_output.returncode != 0:
