@@ -23,8 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests
-
+          pip install requests[socks] # 修改这里，安装 SOCKS 支持
       - name: Download Xray-core
         run: |
           wget "https://github.com/XTLS/Xray-core/releases/download/${{ env.XRAY_VERSION }}/Xray-linux-64.zip"
@@ -36,7 +35,7 @@ jobs:
       - name: Make xray and xctl executable
         run: |
            chmod +x xray
-           chmod +x ./xray # 正确的chmod方法
+           chmod +x ./xray
 
       - name: Add xray to PATH
         run: |
