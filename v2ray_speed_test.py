@@ -4,6 +4,7 @@ import os
 import datetime
 import base64
 import requests
+import time
 
 def get_xray_speed_and_verify():
     vmess_config = {
@@ -23,6 +24,8 @@ def get_xray_speed_and_verify():
        "alpn": "",
        "fp": ""
     }
+    
+    xray_socks_port = 1080 # Hardcoded socks proxy port
 
     address = vmess_config["add"]
     port = vmess_config["port"]
@@ -66,7 +69,7 @@ def get_xray_speed_and_verify():
                         }
                     ]
                 },
-               "streamSettings": {
+                "streamSettings": {
                    "network": net,
                     "wsSettings": {
                         "path": path,
@@ -89,8 +92,8 @@ def get_xray_speed_and_verify():
         print("Testing Proxy...")
         try:
             proxies = {
-                "http": "socks5://127.0.0.1:0",
-                "https": "socks5://127.0.0.1:0"
+                "http": f"socks5://127.0.0.1:{xray_socks_port}",
+                "https": f"socks5://127.0.0.1:{xray_socks_port}"
             }
             response = requests.get("https://api.ipify.org", proxies=proxies, timeout=10)
             response.raise_for_status() # 如果响应不是 200，会抛出异常
@@ -118,7 +121,7 @@ def get_xray_speed_and_verify():
 
        # 发起一些流量
         test_speed_result = subprocess.run(
-            ["curl","-v","https://www.google.com","--proxy","socks5://127.0.0.1:0"],
+            ["curl","-v","https://www.google.com","--proxy",f"socks5://127.0.0.1:{xray_socks_port}"],
             capture_output=True,
             text=True,
             check=False,
